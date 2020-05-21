@@ -1,0 +1,19 @@
+{
+  "name": "YouTubeScreenShot",
+  "description": "ワンクリックでYouTubeのスクショを撮るよ。",
+  "author": "micelle",
+  "version": "1.0.0",
+  "manifest_version": 2,
+  "icons": {
+    "16": "icons/16.png",
+    "64": "icons/64.png",
+    "128": "icons/128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://www.youtube.com/*", "https://www.youtube.com/*"],
+      "js": ["src/script.js"],
+      "css": ["src/styles.css"]
+    }
+  ]
+}

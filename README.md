@@ -6,7 +6,7 @@ YouTube Screen Shot
 YouTubeのスクリーンショットを簡単に取れるChromeの拡張機能です。
 
 ## ダウンロード
-ストア準備中です……(∩´﹏\`∩)
+https://chrome.google.com/webstore/detail/youtubescreenshot/kphdmkjcpejagaaijollpbmikeeehghi
 
 ## 使い方
 1. 適当なYouTubeの動画を開きます。ライブ配信でもOKです。

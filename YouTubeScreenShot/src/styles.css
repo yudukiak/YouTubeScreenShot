@@ -1,22 +1,15 @@
 #screenshot-ui {
-  display: inline-block;
-  height: 100%;
-  overflow: hidden;
-  opacity: .9;
-}
-
-#screenshot-ui div {
-  align-items: center;
   display: flex;
-  height: 100%;
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: 1em;
 }
 
 #screenshot-ui button {
-  background-color: var(--yt-app-background);
-  border: 1px solid var(--yt-spec-call-to-action);
+  background-color: #272727;
   border-radius: 3px;
   border-style: none;
-  color: var(--yt-button-active-color);
+  color: #f1f1f1;
   cursor: pointer;
   height: 24px;
   margin-right: 3px;
@@ -25,14 +18,5 @@
 }
 
 #screenshot-ui button:hover {
-  background-color: var(--yt-spec-call-to-action);
-  color: var(--yt-app-background);
-}
-
-#screenshot-ui input {
-  border: 1px solid var(--yt-spec-call-to-action);
-  border-radius: 3px;
-  box-sizing: border-box;
-  height: 24px;
-  width: 70px;
+  background-color: #3f3f3f;
 }

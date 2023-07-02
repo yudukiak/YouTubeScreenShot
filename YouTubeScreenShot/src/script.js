@@ -1,57 +1,59 @@
+let fps = 0
+
 window.onload = () => {
   // 読み込みが完了してないときがあるので…
   let timer = setInterval(() => {
     const path = location.pathname
-    const trg = document.getElementById('player-theater-container')
+    const trg = document.getElementById('player')
     const ui = document.getElementById('screenshot-ui')
     if (path === '/watch' && trg != null && ui == null) clearInterval(timer), setCurrentTimeHtml()
   }, 1000)
+  // フレームレートを計測
+  // https://g6g6g6g6g6.tumblr.com/post/62808017343/
+  const requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
+  let st, et, d, count = 0, max = 30
+  const counter = _ => {
+    count ++
+    if(count === 1) st = new Date().getTime()
+    if(count === max) {
+      et = new Date().getTime()
+      d = et - st
+      fps = count / d * 1000
+      count = 0
+    }
+    requestAnimationFrame(counter)
+  }
+  requestAnimationFrame(counter)
 }
 
 const setCurrentTimeHtml = () => {
-  const nextButton1000 = document.createElement('button')
-  nextButton1000.id = 'currentTimeNext1000'
-  nextButton1000.textContent = '>>'
-  nextButton1000.title = '1秒進む'
-  nextButton1000.dataset.current = '1000'
-  const nextButton100 = document.createElement('button')
-  nextButton100.id = 'currentTimeNext100'
-  nextButton100.textContent = '>'
-  nextButton100.title = '0.1秒進む'
-  nextButton100.dataset.current = '100'
-  const prevButton100 = document.createElement('button')
-  prevButton100.id = 'currentTimePrev100'
-  prevButton100.textContent = '<'
-  prevButton100.title = '0.1秒戻る'
-  prevButton100.dataset.current = '-100'
-  const prevButton1000 = document.createElement('button')
-  prevButton1000.id = 'currentTimePrev1000'
-  prevButton1000.textContent = '<<'
-  prevButton1000.title = '1秒戻る'
-  prevButton1000.dataset.current = '-1000'
-  const screenshotButton = document.createElement('button')
-  screenshotButton.id = 'screenshot'
-  screenshotButton.textContent = '📷'
-  const outer = document.createElement('div')
+  let html = '<button id="screenshot">📷</button>'
+  html += '<button title="1秒戻る" data-current="-1000">&lt;&lt;</button>'
+  html += '<button title="0.1秒戻る" data-current="-100">&lt;</button>'
+  html += '<button title="1フレーム戻る" data-current-frame="-1">-f</button>'
+  html += '<button title="1フレーム進む" data-current-frame="1">+f</button>'
+  html += '<button title="0.1秒進む" data-current="100">&gt;</button>'
+  html += '<button title="1秒進む" data-current="1000">&gt;&gt;</button>'
   const inner = document.createElement('div')
-  outer.id = 'screenshot-ui'
-  inner.prepend(nextButton1000)
-  inner.prepend(nextButton100)
-  inner.prepend(prevButton100)
-  inner.prepend(prevButton1000)
-  inner.prepend(screenshotButton)
-  outer.prepend(inner)
-  document.querySelector('.ytp-right-controls').prepend(outer)
+  inner.id = 'screenshot-ui'
+  inner.innerHTML = html
+  document.getElementById('below').insertBefore(inner, document.getElementById('alerts'))
   document.getElementById('screenshot-ui').onselectstart = () => false
-  document.getElementById('currentTimeNext1000').onclick = e => setCurrentTime(e)
-  document.getElementById('currentTimeNext100').onclick = e => setCurrentTime(e)
-  document.getElementById('currentTimePrev100').onclick = e => setCurrentTime(e)
-  document.getElementById('currentTimePrev1000').onclick = e => setCurrentTime(e)
+  document.querySelectorAll('[data-current]').forEach(elm => elm.onclick = e => setCurrentTime(e))
+  document.querySelectorAll('[data-current-frame]').forEach(elm => elm.onclick = e => setCurrentFrame(e))
   document.getElementById('screenshot').onclick = () => getScreenshot()
 }
 
 const setCurrentTime = (e) => {
   const time = Number(e.target.dataset.current) / 1000
+  const video = document.querySelector('.video-stream')
+  const nowTime = video.currentTime
+  video.currentTime = nowTime + time
+}
+
+const setCurrentFrame = (e) => {
+  const frame = Number(e.target.dataset.currentFrame)
+  const time = 1000 / fps / 1000 * frame
   const video = document.querySelector('.video-stream')
   const nowTime = video.currentTime
   video.currentTime = nowTime + time

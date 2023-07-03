@@ -37,7 +37,7 @@ const setCurrentTimeHtml = () => {
   const inner = document.createElement('div')
   inner.id = 'screenshot-ui'
   inner.innerHTML = html
-  document.getElementById('below').insertBefore(inner, document.getElementById('alerts'))
+  document.getElementById('below').before(inner)
   document.getElementById('screenshot-ui').onselectstart = () => false
   document.querySelectorAll('[data-current]').forEach(elm => elm.onclick = e => setCurrentTime(e))
   document.querySelectorAll('[data-current-frame]').forEach(elm => elm.onclick = e => setCurrentFrame(e))

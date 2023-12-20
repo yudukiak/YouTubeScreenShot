@@ -54,9 +54,16 @@ const setEvent = (targetElement, innerElement) => {
   document.getElementById('screenshot').onclick = _ => getScreenshot()
 }
 
+const getVideoElement = _ => {
+  const videos = document.querySelectorAll('.video-stream') // 全てのビデオを取得
+  const video = Array.from(videos).filter(e => e.videoWidth > 0)[0] // サイズがある要素のみ返す
+  if (video.length || video == null) setTimeout(_ => getVideoElement(), 100) // 取得できない時はやり直す
+  return video
+}
+
 const setCurrentTime = e => {
   const time = Number(e.target.dataset.current) / 1000
-  const video = document.querySelector('.video-stream')
+  const video = getVideoElement()
   const nowTime = video.currentTime
   video.currentTime = nowTime + time
 }
@@ -64,7 +71,7 @@ const setCurrentTime = e => {
 const setCurrentFrame = e => {
   const frame = Number(e.target.dataset.currentFrame)
   const time = 1000 / fps / 1000 * frame
-  const video = document.querySelector('.video-stream')
+  const video = getVideoElement()
   const nowTime = video.currentTime
   video.currentTime = nowTime + time
 }
@@ -73,8 +80,7 @@ const getScreenshot = _ => {
   const zeroPadding = value => value < 10 ? String(`0${value}`) : String(value)
   const a = document.createElement('a')
   const c = document.createElement('canvas')
-  const vs = document.querySelectorAll('.video-stream') // 全てのビデオを取得
-  const v = Array.from(vs).filter(e => e.videoWidth > 0)[0] // サイズがある要素のみ返す
+  const v = getVideoElement()
   const e = document.querySelector('#container > h1')
   const t = (e == null) ? '' : e.innerText
   const sa = ((v.currentTime % 60) % 60).toFixed(2).split('.')

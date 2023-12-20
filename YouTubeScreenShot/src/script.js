@@ -73,7 +73,8 @@ const getScreenshot = _ => {
   const zeroPadding = value => value < 10 ? String(`0${value}`) : String(value)
   const a = document.createElement('a')
   const c = document.createElement('canvas')
-  const v = document.querySelector('.video-stream')
+  const vs = document.querySelectorAll('.video-stream') // 全てのビデオを取得
+  const v = Array.from(vs).filter(e => e.videoWidth > 0)[0] // サイズがある要素のみ返す
   const e = document.querySelector('#container > h1')
   const t = (e == null) ? '' : e.innerText
   const sa = ((v.currentTime % 60) % 60).toFixed(2).split('.')

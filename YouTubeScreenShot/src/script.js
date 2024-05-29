@@ -23,7 +23,8 @@ let timer = setInterval(_ => {
   const path = location.pathname
   const trg = document.getElementById('player')
   const ui = document.getElementById('screenshot-ui')
-  if (path === '/watch' && trg != null && ui == null) clearInterval(timer), setCurrentTimeHtml()
+  if (!/^\/(live|watch)/.test(path)) return
+  if (trg != null && ui == null) clearInterval(timer), setCurrentTimeHtml()
 }, 1000)
 
 const setCurrentTimeHtml = _ => {

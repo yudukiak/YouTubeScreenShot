@@ -7,10 +7,10 @@
 }
 
 #screenshot-ui button {
-  background-color: #272727;
-  border: 1px solid rgb(241 241 241 / 25%);
+  background-color: var(--yt-spec-additive-background);
+  border: 1px solid var(--yt-live-chat-disabled-icon-button-color);
   border-radius: 3px;
-  color: rgb(241, 241, 241);
+  color: var(--yt-spec-text-primary);
   cursor: pointer;
   height: 24px;
   margin-left: 3px;
@@ -19,5 +19,5 @@
 }
 
 #screenshot-ui button:hover {
-  background-color: #3f3f3f;
+  background-color: var(--yt-spec-outline);
 }

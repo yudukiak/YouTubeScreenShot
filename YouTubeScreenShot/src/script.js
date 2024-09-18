@@ -98,3 +98,27 @@ const getScreenshot = _ => {
     a.click()
   }, 'image/png')
 }
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message === 'screenshot') {
+    getScreenshot()
+  } else {
+    const ary = message.split('-')
+    const isframe = (/f/.test(ary[1]))
+    const num = ary[1].replace(/f/, '')
+    const current = (ary[0] === 'backward') ? (num * -1) : num
+    const e = {
+      target: {
+        dataset: {
+          current: current,
+          currentFrame: current,
+        }
+      }
+    }
+    if (isframe) {
+      setCurrentFrame(e)
+    } else {
+      setCurrentTime(e)
+    }
+  }
+})

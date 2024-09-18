@@ -16,5 +16,34 @@
       "css": ["src/styles.css"],
       "run_at": "document_end"
     }
-  ]
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "permissions": [
+    "commands"
+  ],
+  "commands": {
+    "screenshot": {
+      "description": "スクリーンショットを保存"
+    },
+    "backward-1000": {
+      "description": "1秒戻る"
+    },
+    "backward-100": {
+      "description": "0.1秒戻る"
+    },
+    "backward-1f": {
+      "description": "1フレーム戻る"
+    },
+    "forward-1f": {
+      "description": "1フレーム進む"
+    },
+    "forward-100": {
+      "description": "0.1秒進む"
+    },
+    "forward-1000": {
+      "description": "1秒進む"
+    }
+  }
 }

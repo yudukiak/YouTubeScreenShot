@@ -12,7 +12,7 @@
   "content_scripts": [
     {
       "matches": ["https://*.youtube.com/*"],
-      "js": ["src/script.js"],
+      "js": ["src/title-slot.js", "src/script.js"],
       "css": ["src/styles.css"],
       "run_at": "document_end"
     }

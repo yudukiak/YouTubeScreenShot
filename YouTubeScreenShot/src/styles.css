@@ -2,11 +2,14 @@
   --ydk-screenshot-rgb: 0, 0, 0;
 }
 
-:root[dark] {
+/* デスクトップ */
+:root[dark],
+/* モバイル */
+:root[darker-dark-theme] {
   --ydk-screenshot-rgb: 255, 255, 255;
 }
 
-#ydk-below-slot {
+#ydk-title-slot {
   display: flex;
   gap: 0.6em;
   justify-content: flex-end;

@@ -2,7 +2,6 @@ const extensionApi = globalThis.browser ?? globalThis.chrome
 
 const SCREENSHOT_BAR_ID = 'ydk-screenshot-bar'
 const SCREENSHOT_CAPTURE_ID = 'ydk-screenshot-capture'
-const BELOW_SLOT_ID = 'ydk-below-slot'
 const FALLBACK_FPS = 30
 
 // フレームレートを計測
@@ -38,26 +37,18 @@ const setFrameRate = () => {
 }
 
 /**
- * /watch・/live で #ydk-below-slot 内にスクショバーを追加する。
- * slot が無ければ #below の直前に生成し、あれば再利用して append する。
- * 追加済み・対象外ページ・#below 未取得の場合は何もしない。
+ * /watch・/live で既存の #ydk-title-slot 内にスクショバーを追加する。
+ * slot 未作成・追加済み・対象外ページの場合は何もしない。
  */
 const setupScreenshotUi = () => {
   if (!/^\/(live|watch)/.test(location.pathname)) return
 
-  const belowElm = document.getElementById('below')
-  if (!belowElm) return
-
-  // 追加済みなら何もしない
+  // 追加済みなら何もしない（多重追加防止）
   if (document.getElementById(SCREENSHOT_BAR_ID)) return
 
-  // 他拡張と共有するラッパー。既にあれば生成しない
-  let slotElm = document.getElementById(BELOW_SLOT_ID)
-  if (!slotElm) {
-    slotElm = document.createElement('div')
-    slotElm.id = BELOW_SLOT_ID
-    belowElm.before(slotElm)
-  }
+  // title-slot.js が用意する共有ラッパー。無ければ待つ
+  const slotElm = document.getElementById('ydk-title-slot')
+  if (!slotElm) return
 
   // スクショ・シーク用ボタン
   let html = `<button id="${SCREENSHOT_CAPTURE_ID}">📷</button>`
@@ -131,7 +122,10 @@ const getScreenshot = () => {
 
   const linkElm = document.createElement('a')
   const canvasElm = document.createElement('canvas')
-  const titleElm = document.querySelector('#container > h1')
+  // デスクトップ / モバイルのタイトルを1件だけ取得
+  const titleElm = document.querySelector(
+    'ytd-watch-metadata #title h1, ytm-slim-video-information-renderer h2, #container > h1'
+  )
   const titleText = titleElm == null ? '' : titleElm.innerText
   const currentTime = videoElm.currentTime
   const secondParts = (currentTime % 60).toFixed(2).split('.')
@@ -182,7 +176,7 @@ extensionApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 })
 
-// YouTube は SPA のため、#below / slot の追加を監視する
+// YouTube は SPA のため、slot 出現後にバーを付け直す
 let updateScheduled = false
 
 const observer = new MutationObserver(() => {

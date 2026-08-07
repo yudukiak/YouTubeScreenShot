@@ -1,0 +1,29 @@
+{
+  "extName": {
+    "message": "YouTubeScreenShot"
+  },
+  "extDescription": {
+    "message": "Take a YouTube screenshot in one click."
+  },
+  "screenshot": {
+    "message": "Save screenshot"
+  },
+  "seekBack1s": {
+    "message": "Seek back 1 second"
+  },
+  "seekBack01s": {
+    "message": "Seek back 0.1 seconds"
+  },
+  "seekBack1f": {
+    "message": "Seek back 1 frame"
+  },
+  "seekForward1f": {
+    "message": "Seek forward 1 frame"
+  },
+  "seekForward01s": {
+    "message": "Seek forward 0.1 seconds"
+  },
+  "seekForward1s": {
+    "message": "Seek forward 1 second"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "extName": {
+    "message": "YouTubeScreenShot"
+  },
+  "extDescription": {
+    "message": "ワンクリックでYouTubeのスクショを撮るよ。"
+  },
+  "screenshot": {
+    "message": "スクリーンショットを保存"
+  },
+  "seekBack1s": {
+    "message": "1秒戻る"
+  },
+  "seekBack01s": {
+    "message": "0.1秒戻る"
+  },
+  "seekBack1f": {
+    "message": "1フレーム戻る"
+  },
+  "seekForward1f": {
+    "message": "1フレーム進む"
+  },
+  "seekForward01s": {
+    "message": "0.1秒進む"
+  },
+  "seekForward1s": {
+    "message": "1秒進む"
+  }
+}

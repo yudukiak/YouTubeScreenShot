@@ -54,20 +54,21 @@ const setupScreenshotUi = () => {
   // スクショ・シーク用ボタン
   const captureBtn = document.createElement('button')
   captureBtn.id = 'ydk-screenshot-capture'
+  captureBtn.title = extensionApi.i18n.getMessage('screenshot')
   captureBtn.textContent = '📷'
 
   const seekButtons = [
-    { title: '1秒戻る', currentMs: '-1000', label: '<<' },
-    { title: '0.1秒戻る', currentMs: '-100', label: '<' },
-    { title: '1フレーム戻る', frame: '-1', label: '-f' },
-    { title: '1フレーム進む', frame: '1', label: '+f' },
-    { title: '0.1秒進む', currentMs: '100', label: '>' },
-    { title: '1秒進む', currentMs: '1000', label: '>>' },
+    { titleKey: 'seekBack1s', currentMs: '-1000', label: '<<' },
+    { titleKey: 'seekBack01s', currentMs: '-100', label: '<' },
+    { titleKey: 'seekBack1f', frame: '-1', label: '-f' },
+    { titleKey: 'seekForward1f', frame: '1', label: '+f' },
+    { titleKey: 'seekForward01s', currentMs: '100', label: '>' },
+    { titleKey: 'seekForward1s', currentMs: '1000', label: '>>' },
   ]
 
-  const buttonElms = seekButtons.map(({ title, currentMs, frame, label }) => {
+  const buttonElms = seekButtons.map(({ titleKey, currentMs, frame, label }) => {
     const buttonElm = document.createElement('button')
-    buttonElm.title = title
+    buttonElm.title = extensionApi.i18n.getMessage(titleKey)
     buttonElm.textContent = label
     if (currentMs != null) buttonElm.dataset.current = currentMs
     if (frame != null) buttonElm.dataset.currentFrame = frame

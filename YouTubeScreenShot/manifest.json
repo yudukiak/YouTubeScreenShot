@@ -1,9 +1,10 @@
 {
-  "name": "YouTubeScreenShot",
-  "description": "ワンクリックでYouTubeのスクショを撮るよ。",
+  "name": "__MSG_extName__",
+  "description": "__MSG_extDescription__",
   "author": "akasaka",
   "version": "1.2.0",
   "manifest_version": 3,
+  "default_locale": "ja",
   "icons": {
     "16": "icons/16.png",
     "64": "icons/64.png",
@@ -26,25 +27,25 @@
   ],
   "commands": {
     "screenshot": {
-      "description": "スクリーンショットを保存"
+      "description": "__MSG_screenshot__"
     },
     "backward-1000": {
-      "description": "1秒戻る"
+      "description": "__MSG_seekBack1s__"
     },
     "backward-100": {
-      "description": "0.1秒戻る"
+      "description": "__MSG_seekBack01s__"
     },
     "backward-1f": {
-      "description": "1フレーム戻る"
+      "description": "__MSG_seekBack1f__"
     },
     "forward-1f": {
-      "description": "1フレーム進む"
+      "description": "__MSG_seekForward1f__"
     },
     "forward-100": {
-      "description": "0.1秒進む"
+      "description": "__MSG_seekForward01s__"
     },
     "forward-1000": {
-      "description": "1秒進む"
+      "description": "__MSG_seekForward1s__"
     }
   },
   "browser_specific_settings": {

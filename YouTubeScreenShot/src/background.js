@@ -1,13 +1,16 @@
+const extensionApi = globalThis.browser ?? globalThis.chrome
 
-chrome.commands.onCommand.addListener((command) => {
+extensionApi.commands.onCommand.addListener(async (command) => {
   console.log('[YouTubeScreenShot] background.js - command:', command)
+
   // アクティブなタブにメッセージを送信
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (tabs.length > 0) {
-      chrome.tabs.sendMessage(tabs[0].id, command).catch((error) => {
-        // 読み込み完了前はエラーになるので注意
-        console.log('[YouTubeScreenShot] background.js - error:', error)
-      })
-    }
-  })
+  const tabs = await extensionApi.tabs.query({ active: true, currentWindow: true })
+  if (tabs.length === 0) return
+
+  try {
+    await extensionApi.tabs.sendMessage(tabs[0].id, command)
+  } catch (error) {
+    // 読み込み完了前はエラーになるので注意
+    console.log('[YouTubeScreenShot] background.js - error:', error)
+  }
 })

@@ -1,3 +1,5 @@
+const extensionApi = globalThis.browser ?? globalThis.chrome
+
 const SCREENSHOT_BAR_ID = 'ydk-screenshot-bar'
 const SCREENSHOT_CAPTURE_ID = 'ydk-screenshot-capture'
 const BELOW_SLOT_ID = 'ydk-below-slot'
@@ -149,7 +151,7 @@ const getScreenshot = () => {
 }
 
 // ショートカットコマンドを受け取り、スクショ / シークを実行する
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+extensionApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message === 'screenshot') {
     getScreenshot()
     return

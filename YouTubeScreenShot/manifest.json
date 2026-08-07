@@ -11,13 +11,14 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://www.youtube.com/*", "https://www.youtube.com/*"],
+      "matches": ["https://*.youtube.com/*"],
       "js": ["src/script.js"],
       "css": ["src/styles.css"],
       "run_at": "document_end"
     }
   ],
   "background": {
+    "scripts": ["src/background.js"],
     "service_worker": "src/background.js"
   },
   "permissions": [
@@ -44,6 +45,12 @@
     },
     "forward-1000": {
       "description": "1秒進む"
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "youtubescreenshot@ydk.vc",
+      "strict_min_version": "121.0"
     }
   }
 }

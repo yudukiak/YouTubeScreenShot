@@ -1,31 +1,36 @@
 :root {
-  --ytss-rgb: 0, 0, 0;
+  --ydk-screenshot-rgb: 0, 0, 0;
 }
 
 :root[dark] {
-  --ytss-rgb: 255, 255, 255;
+  --ydk-screenshot-rgb: 255, 255, 255;
 }
 
-#screenshot-ui {
+#ydk-below-slot {
   display: flex;
+  gap: 0.6em;
   justify-content: flex-end;
   margin-top: 1em;
   position: relative;
   width: 100%;
 }
 
-#screenshot-ui button {
-  background-color: rgba(var(--ytss-rgb), 0.1);
-  border: 1px solid rgba(var(--ytss-rgb), 0.3);
-  border-radius: 3px;
-  color: rgba(var(--ytss-rgb), 0.9);
-  cursor: pointer;
-  height: 24px;
-  margin-left: 3px;
-  user-select: none;
-  width: 32px;
-}
+#ydk-screenshot-bar {
+  display: flex;
+  gap: 0.2em;
 
-#screenshot-ui button:hover {
-  background-color: rgba(var(--ytss-rgb), 0.2);
+  button {
+    background-color: rgba(var(--ydk-screenshot-rgb), 0.1);
+    border: 1px solid rgba(var(--ydk-screenshot-rgb), 0.3);
+    border-radius: 3px;
+    color: rgba(var(--ydk-screenshot-rgb), 0.9);
+    cursor: pointer;
+    height: 24px;
+    user-select: none;
+    width: 32px;
+
+    &:hover {
+      background-color: rgba(var(--ydk-screenshot-rgb), 0.2);
+    }
+  }
 }

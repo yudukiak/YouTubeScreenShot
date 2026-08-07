@@ -1,16 +1,33 @@
+const SCREENSHOT_BAR_ID = 'ydk-screenshot-bar'
+const SCREENSHOT_CAPTURE_ID = 'ydk-screenshot-capture'
+const BELOW_SLOT_ID = 'ydk-below-slot'
+const FALLBACK_FPS = 30
+
 // フレームレートを計測
 // https://g6g6g6g6g6.tumblr.com/post/62808017343/
 let fps = 0
-const setFrameRate = _ => {
-  const requestAnimationFrame =  window.webkitRequestAnimationFrame
-  let st, et, d, count = 0, max = 30
-  const counter = _ => {
+let isFrameRateStarted = false
+
+/**
+ * 再生 FPS を継続計測する。多重起動しない。
+ */
+const setFrameRate = () => {
+  if (isFrameRateStarted) return
+  isFrameRateStarted = true
+
+  let startTime
+  let endTime
+  let duration
+  let count = 0
+  const sampleCount = 30
+
+  const counter = () => {
     count++
-    if (count === 1) st = new Date().getTime()
-    if (count === max) {
-      et = new Date().getTime()
-      d = et - st
-      fps = count / d * 1000
+    if (count === 1) startTime = Date.now()
+    if (count === sampleCount) {
+      endTime = Date.now()
+      duration = endTime - startTime
+      fps = count / duration * 1000
       count = 0
     }
     requestAnimationFrame(counter)
@@ -18,107 +35,168 @@ const setFrameRate = _ => {
   requestAnimationFrame(counter)
 }
 
-// 読み込みが完了してないときがあるので…
-let timer = setInterval(_ => {
-  const path = location.pathname
-  const trg = document.getElementById('player')
-  const ui = document.getElementById('screenshot-ui')
-  if (!/^\/(live|watch)/.test(path)) return
-  if (trg != null && ui == null) clearInterval(timer), setCurrentTimeHtml()
-}, 1000)
+/**
+ * /watch・/live で #ydk-below-slot 内にスクショバーを追加する。
+ * slot が無ければ #below の直前に生成し、あれば再利用して append する。
+ * 追加済み・対象外ページ・#below 未取得の場合は何もしない。
+ */
+const setupScreenshotUi = () => {
+  if (!/^\/(live|watch)/.test(location.pathname)) return
 
-const setCurrentTimeHtml = _ => {
-  let html = '<button id="screenshot">📷</button>'
+  const belowElm = document.getElementById('below')
+  if (!belowElm) return
+
+  // 追加済みなら何もしない
+  if (document.getElementById(SCREENSHOT_BAR_ID)) return
+
+  // 他拡張と共有するラッパー。既にあれば生成しない
+  let slotElm = document.getElementById(BELOW_SLOT_ID)
+  if (!slotElm) {
+    slotElm = document.createElement('div')
+    slotElm.id = BELOW_SLOT_ID
+    belowElm.before(slotElm)
+  }
+
+  // スクショ・シーク用ボタン
+  let html = `<button id="${SCREENSHOT_CAPTURE_ID}">📷</button>`
   html += '<button title="1秒戻る" data-current="-1000">&lt;&lt;</button>'
   html += '<button title="0.1秒戻る" data-current="-100">&lt;</button>'
   html += '<button title="1フレーム戻る" data-current-frame="-1">-f</button>'
   html += '<button title="1フレーム進む" data-current-frame="1">+f</button>'
   html += '<button title="0.1秒進む" data-current="100">&gt;</button>'
   html += '<button title="1秒進む" data-current="1000">&gt;&gt;</button>'
-  const innerElement = document.createElement('div')
-  innerElement.id = 'screenshot-ui'
-  innerElement.innerHTML = html
-  const targetElement = document.getElementById('below')
-  if (targetElement == null) {
-    setTimeout(_ => setCurrentTimeHtml(), 1000) // 取得できない時はやり直す
-  } else {
-    setEvent(targetElement, innerElement)
-  }
-}
 
-const setEvent = (targetElement, innerElement) => {
+  const uiElm = document.createElement('div')
+  uiElm.id = SCREENSHOT_BAR_ID
+  uiElm.innerHTML = html
+
   setFrameRate()
-  targetElement.before(innerElement)
-  document.getElementById('screenshot-ui').onselectstart = _ => false
-  document.querySelectorAll('[data-current]').forEach(elm => elm.onclick = e => setCurrentTime(e))
-  document.querySelectorAll('[data-current-frame]').forEach(elm => elm.onclick = e => setCurrentFrame(e))
-  document.getElementById('screenshot').onclick = _ => getScreenshot()
+  slotElm.append(uiElm)
+  uiElm.onselectstart = () => false
+
+  // UI 内のボタンだけにイベントを紐付ける
+  uiElm.querySelectorAll('[data-current]').forEach(elm => {
+    elm.onclick = e => setCurrentTime(e)
+  })
+  uiElm.querySelectorAll('[data-current-frame]').forEach(elm => {
+    elm.onclick = e => setCurrentFrame(e)
+  })
+  uiElm.querySelector(`#${SCREENSHOT_CAPTURE_ID}`).onclick = () => getScreenshot()
 }
 
-const getVideoElement = _ => {
-  const videos = document.querySelectorAll('.video-stream') // 全てのビデオを取得
-  const video = Array.from(videos).filter(e => e.videoWidth > 0)[0] // サイズがある要素のみ返す
-  if (video.length || video == null) setTimeout(_ => getVideoElement(), 100) // 取得できない時はやり直す
-  return video
+/**
+ * 再生中の video 要素を返す。見つからなければ null。
+ */
+const getVideoElement = () => {
+  // 全てのビデオから、サイズがある要素のみ返す
+  const videos = document.querySelectorAll('.video-stream')
+  const video = Array.from(videos).find(elm => elm.videoWidth > 0)
+  return video ?? null
 }
 
+/**
+ * data-current（ミリ秒）分だけ再生位置をずらす。
+ */
 const setCurrentTime = e => {
   const time = Number(e.target.dataset.current) / 1000
   const video = getVideoElement()
-  const nowTime = video.currentTime
-  video.currentTime = nowTime + time
+  if (!video) return // 取得できないときは何もしない
+
+  video.currentTime = video.currentTime + time
 }
 
+/**
+ * data-current-frame 分だけ再生位置をずらす。
+ * FPS 未計測時は FALLBACK_FPS を使う。
+ */
 const setCurrentFrame = e => {
   const frame = Number(e.target.dataset.currentFrame)
-  const time = 1000 / fps / 1000 * frame
+  const currentFps = fps > 0 ? fps : FALLBACK_FPS
+  const time = (1 / currentFps) * frame
   const video = getVideoElement()
-  const nowTime = video.currentTime
-  video.currentTime = nowTime + time
+  if (!video) return // 取得できないときは何もしない
+
+  video.currentTime = video.currentTime + time
 }
 
-const getScreenshot = _ => {
-  const zeroPadding = value => value < 10 ? String(`0${value}`) : String(value)
-  const a = document.createElement('a')
-  const c = document.createElement('canvas')
-  const v = getVideoElement()
-  const e = document.querySelector('#container > h1')
-  const t = (e == null) ? '' : e.innerText
-  const sa = ((v.currentTime % 60) % 60).toFixed(2).split('.')
-  const ms = zeroPadding(Number(sa[1]))
-  const s = zeroPadding(Number(sa[0]))
-  const m = zeroPadding(Math.floor((v.currentTime / 60) % 60))
-  const h = zeroPadding(Math.floor(v.currentTime / 3600))
-  a.download = `${t} ${h}-${m}-${s}.${ms}.png`
-  c.width = v.videoWidth
-  c.height = v.videoHeight
-  c.getContext('2d').drawImage(v, 0, 0)
-  c.toBlob(b => {
-    a.href = URL.createObjectURL(b)
-    a.click()
+/**
+ * 現在フレームを PNG としてダウンロードする。
+ */
+const getScreenshot = () => {
+  const zeroPadding = value => value < 10 ? `0${value}` : String(value)
+  const videoElm = getVideoElement()
+  if (!videoElm) return // 取得できないときは何もしない
+
+  const linkElm = document.createElement('a')
+  const canvasElm = document.createElement('canvas')
+  const titleElm = document.querySelector('#container > h1')
+  const titleText = titleElm == null ? '' : titleElm.innerText
+  const currentTime = videoElm.currentTime
+  const secondParts = (currentTime % 60).toFixed(2).split('.')
+  const ms = zeroPadding(Number(secondParts[1]))
+  const s = zeroPadding(Number(secondParts[0]))
+  const m = zeroPadding(Math.floor((currentTime / 60) % 60))
+  const h = zeroPadding(Math.floor(currentTime / 3600))
+
+  linkElm.download = `${titleText} ${h}-${m}-${s}.${ms}.png`
+  canvasElm.width = videoElm.videoWidth
+  canvasElm.height = videoElm.videoHeight
+  canvasElm.getContext('2d').drawImage(videoElm, 0, 0)
+  canvasElm.toBlob(blob => {
+    linkElm.href = URL.createObjectURL(blob)
+    linkElm.click()
   }, 'image/png')
 }
 
+// ショートカットコマンドを受け取り、スクショ / シークを実行する
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message === 'screenshot') {
     getScreenshot()
-  } else {
-    const ary = message.split('-')
-    const isframe = (/f/.test(ary[1]))
-    const num = ary[1].replace(/f/, '')
-    const current = (ary[0] === 'backward') ? (num * -1) : num
-    const e = {
-      target: {
-        dataset: {
-          current: current,
-          currentFrame: current,
-        }
+    return
+  }
+
+  // 形式: direction-amount（例: backward-1000, forward-1f）
+  const parts = String(message).split('-')
+  const direction = parts[0]
+  const amount = parts[1]
+  if (!amount || (direction !== 'backward' && direction !== 'forward')) return
+
+  const isFrame = /f/.test(amount)
+  const num = amount.replace(/f/, '')
+  const current = direction === 'backward' ? num * -1 : num
+  const e = {
+    target: {
+      dataset: {
+        current: current,
+        currentFrame: current,
       }
     }
-    if (isframe) {
-      setCurrentFrame(e)
-    } else {
-      setCurrentTime(e)
-    }
   }
+
+  if (isFrame) {
+    setCurrentFrame(e)
+  } else {
+    setCurrentTime(e)
+  }
+})
+
+// YouTube は SPA のため、#below / slot の追加を監視する
+let updateScheduled = false
+
+const observer = new MutationObserver(() => {
+  if (updateScheduled) return
+
+  updateScheduled = true
+
+  requestAnimationFrame(() => {
+    updateScheduled = false
+    setupScreenshotUi()
+  })
+})
+
+setupScreenshotUi()
+
+observer.observe(document.documentElement, {
+  childList: true,
+  subtree: true,
 })

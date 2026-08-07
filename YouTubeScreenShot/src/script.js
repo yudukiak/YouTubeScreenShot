@@ -1,7 +1,5 @@
 const extensionApi = globalThis.browser ?? globalThis.chrome
 
-const SCREENSHOT_BAR_ID = 'ydk-screenshot-bar'
-const SCREENSHOT_CAPTURE_ID = 'ydk-screenshot-capture'
 const FALLBACK_FPS = 30
 
 // フレームレートを計測
@@ -44,24 +42,39 @@ const setupScreenshotUi = () => {
   if (!/^\/(live|watch)/.test(location.pathname)) return
 
   // 追加済みなら何もしない（多重追加防止）
-  if (document.getElementById(SCREENSHOT_BAR_ID)) return
+  if (document.getElementById('ydk-screenshot-bar')) return
 
   // title-slot.js が用意する共有ラッパー。無ければ待つ
   const slotElm = document.getElementById('ydk-title-slot')
   if (!slotElm) return
 
-  // スクショ・シーク用ボタン
-  let html = `<button id="${SCREENSHOT_CAPTURE_ID}">📷</button>`
-  html += '<button title="1秒戻る" data-current="-1000">&lt;&lt;</button>'
-  html += '<button title="0.1秒戻る" data-current="-100">&lt;</button>'
-  html += '<button title="1フレーム戻る" data-current-frame="-1">-f</button>'
-  html += '<button title="1フレーム進む" data-current-frame="1">+f</button>'
-  html += '<button title="0.1秒進む" data-current="100">&gt;</button>'
-  html += '<button title="1秒進む" data-current="1000">&gt;&gt;</button>'
-
   const uiElm = document.createElement('div')
-  uiElm.id = SCREENSHOT_BAR_ID
-  uiElm.innerHTML = html
+  uiElm.id = 'ydk-screenshot-bar'
+
+  // スクショ・シーク用ボタン
+  const captureBtn = document.createElement('button')
+  captureBtn.id = 'ydk-screenshot-capture'
+  captureBtn.textContent = '📷'
+
+  const seekButtons = [
+    { title: '1秒戻る', currentMs: '-1000', label: '<<' },
+    { title: '0.1秒戻る', currentMs: '-100', label: '<' },
+    { title: '1フレーム戻る', frame: '-1', label: '-f' },
+    { title: '1フレーム進む', frame: '1', label: '+f' },
+    { title: '0.1秒進む', currentMs: '100', label: '>' },
+    { title: '1秒進む', currentMs: '1000', label: '>>' },
+  ]
+
+  const buttonElms = seekButtons.map(({ title, currentMs, frame, label }) => {
+    const buttonElm = document.createElement('button')
+    buttonElm.title = title
+    buttonElm.textContent = label
+    if (currentMs != null) buttonElm.dataset.current = currentMs
+    if (frame != null) buttonElm.dataset.currentFrame = frame
+    return buttonElm
+  })
+
+  uiElm.append(captureBtn, ...buttonElms)
 
   setFrameRate()
   slotElm.append(uiElm)
@@ -69,12 +82,12 @@ const setupScreenshotUi = () => {
 
   // UI 内のボタンだけにイベントを紐付ける
   uiElm.querySelectorAll('[data-current]').forEach(elm => {
-    elm.onclick = e => setCurrentTime(e)
+    elm.onclick = () => seekBySeconds(Number(elm.dataset.current) / 1000)
   })
   uiElm.querySelectorAll('[data-current-frame]').forEach(elm => {
-    elm.onclick = e => setCurrentFrame(e)
+    elm.onclick = () => seekByFrames(Number(elm.dataset.currentFrame))
   })
-  uiElm.querySelector(`#${SCREENSHOT_CAPTURE_ID}`).onclick = () => getScreenshot()
+  captureBtn.onclick = () => getScreenshot()
 }
 
 /**
@@ -88,28 +101,23 @@ const getVideoElement = () => {
 }
 
 /**
- * data-current（ミリ秒）分だけ再生位置をずらす。
+ * 指定秒数だけ再生位置をずらす。
  */
-const setCurrentTime = e => {
-  const time = Number(e.target.dataset.current) / 1000
+const seekBySeconds = seconds => {
   const video = getVideoElement()
   if (!video) return // 取得できないときは何もしない
 
-  video.currentTime = video.currentTime + time
+  video.currentTime = video.currentTime + seconds
 }
 
 /**
- * data-current-frame 分だけ再生位置をずらす。
+ * 指定フレーム数だけ再生位置をずらす。
  * FPS 未計測時は FALLBACK_FPS を使う。
  */
-const setCurrentFrame = e => {
-  const frame = Number(e.target.dataset.currentFrame)
+const seekByFrames = frameCount => {
   const currentFps = fps > 0 ? fps : FALLBACK_FPS
-  const time = (1 / currentFps) * frame
-  const video = getVideoElement()
-  if (!video) return // 取得できないときは何もしない
-
-  video.currentTime = video.currentTime + time
+  const seconds = (1 / currentFps) * frameCount
+  seekBySeconds(seconds)
 }
 
 /**
@@ -123,9 +131,7 @@ const getScreenshot = () => {
   const linkElm = document.createElement('a')
   const canvasElm = document.createElement('canvas')
   // デスクトップ / モバイルのタイトルを1件だけ取得
-  const titleElm = document.querySelector(
-    'ytd-watch-metadata #title h1, ytm-slim-video-information-renderer h2, #container > h1'
-  )
+  const titleElm = document.querySelector('ytd-watch-metadata #title h1, ytm-slim-video-information-renderer h2, #container > h1')
   const titleText = titleElm == null ? '' : titleElm.innerText
   const currentTime = videoElm.currentTime
   const secondParts = (currentTime % 60).toFixed(2).split('.')
@@ -145,7 +151,7 @@ const getScreenshot = () => {
 }
 
 // ショートカットコマンドを受け取り、スクショ / シークを実行する
-extensionApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
+extensionApi.runtime.onMessage.addListener(message => {
   if (message === 'screenshot') {
     getScreenshot()
     return
@@ -158,21 +164,14 @@ extensionApi.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!amount || (direction !== 'backward' && direction !== 'forward')) return
 
   const isFrame = /f/.test(amount)
-  const num = amount.replace(/f/, '')
-  const current = direction === 'backward' ? num * -1 : num
-  const e = {
-    target: {
-      dataset: {
-        current: current,
-        currentFrame: current,
-      }
-    }
-  }
+  const num = Number(amount.replace(/f/, ''))
+  const signedValue = direction === 'backward' ? num * -1 : num
 
   if (isFrame) {
-    setCurrentFrame(e)
+    seekByFrames(signedValue)
   } else {
-    setCurrentTime(e)
+    // amount はミリ秒
+    seekBySeconds(signedValue / 1000)
   }
 })
 

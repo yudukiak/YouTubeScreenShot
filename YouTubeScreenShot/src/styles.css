@@ -18,6 +18,7 @@
 #ydk-screenshot-bar {
   display: flex;
   gap: 0.2em;
+  order: 2;
 
   button {
     background-color: rgba(var(--ydk-screenshot-rgb), 0.1);

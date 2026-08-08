@@ -1,17 +1,12 @@
 /**
- * タイトル周辺の差し込み先を1件だけ返す。見つからなければ null。
+ * 差し込み先を1件だけ返す。見つからなければ null。
  * 他拡張へコピペするときは #ydk-title-slot 用 CSS も別途用意する。
  */
 const findTitleSlotAnchor = () => {
   // 先頭ヒット1件だけ使う
   const selectors = [
-    'ytd-watch-metadata #title',
-    '#above-the-fold #title',
-    'ytd-watch-metadata',
-    'ytm-slim-video-information-renderer',
-    'ytm-slim-video-metadata-section-renderer',
-    '#below',
     '#primary-inner > #player',
+    '.player-size.player-placeholder',
   ]
   for (const selector of selectors) {
     const elm = document.querySelector(selector)
@@ -37,7 +32,7 @@ const ensureTitleSlot = () => {
 
   slotElm = document.createElement('div')
   slotElm.id = 'ydk-title-slot'
-  anchorElm.before(slotElm)
+  anchorElm.after(slotElm)
   return slotElm
 }
 

@@ -25,11 +25,11 @@ YouTubeのスクリーンショットを簡単に取れる、Chrome / Firefox �
 ### 上手な使い方
 - 動画を一時停止させてから `📷` ボタンをクリックすることで、好みのスクショがダウンロードできるよ。
 - `<` `>` ボタンをクリックすると、0.1秒ずつ動かせるよ。
-- `<<` `>>` ボタンをクリックすると、1秒ずつ動かせるよ。
-- `-f` `+f` ボタンをクリックすると、約1フレームずつ動かせるよ（正しく1F移動するとは限らないので注意！！）。  
-![current](https://raw.githubusercontent.com/yudukiak/YouTubeScreenShot/master/assets/frame.gif)
-- YouTubeの機能だけど <kbd>←</kbd> キーと <kbd>→</kbd> キーを押すと5秒ずつ動かせるんだって。  
+- `<<` `>>` ボタンをクリックすると、1秒ずつ動かせるよ。  
 ![current](https://raw.githubusercontent.com/yudukiak/YouTubeScreenShot/master/assets/current.gif)
+- `-f` `+f` ボタンをクリックすると、約1フレームずつ動かせるよ（正しく1F移動するとは限らないので注意！！）。  
+![frame](https://raw.githubusercontent.com/yudukiak/YouTubeScreenShot/master/assets/frame.gif)
+- YouTubeの機能だけど <kbd>←</kbd> キーと <kbd>→</kbd> キーを押すと5秒ずつ動かせるんだって。
 
 ### ショートカット機能
 ショートカットを設定できるようになりました！
@@ -51,11 +51,11 @@ A browser extension for Chrome / Firefox that makes it easy to take screenshots 
 ### Pro Tips
 - Pause the video before clicking the `📷` button to get the exact shot you want.
 - Click the `<` `>` buttons to move by 0.1 seconds.
-- Click the `<<` `>>` buttons to move by 1 second.
-- Click the `-f` `+f` buttons to move by roughly 1 frame (note: it might not move by exactly 1 frame every time!).  
-![current](https://raw.githubusercontent.com/yudukiak/YouTubeScreenShot/master/assets/frame.gif)
-- This is a built-in YouTube feature, but pressing the <kbd>←</kbd> and <kbd>→</kbd> keys seeks by 5 seconds.  
+- Click the `<<` `>>` buttons to move by 1 second.  
 ![current](https://raw.githubusercontent.com/yudukiak/YouTubeScreenShot/master/assets/current.gif)
+- Click the `-f` `+f` buttons to move by roughly 1 frame (note: it might not move by exactly 1 frame every time!).  
+![frame](https://raw.githubusercontent.com/yudukiak/YouTubeScreenShot/master/assets/frame.gif)
+- This is a built-in YouTube feature, but pressing the <kbd>←</kbd> and <kbd>→</kbd> keys seeks by 5 seconds.
 
 ### Keyboard Shortcuts
 You can set up custom shortcuts!
